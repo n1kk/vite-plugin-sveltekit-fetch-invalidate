@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-sveltekit-fetch-invalidate",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Sveltekit plugin to help with HMR in data endpoints.",
   "author": "n1kk",
   "license": "MIT",
