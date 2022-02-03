@@ -113,9 +113,6 @@ export function fetchInvalidate(options: Options): Plugin {
                     event: eventName,
                     data: targetsToInvalidate,
                 });
-
-                // handled
-                return [];
             }
         },
     };
