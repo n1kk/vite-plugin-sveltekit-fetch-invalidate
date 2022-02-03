@@ -65,6 +65,7 @@ export function fetchInvalidate(options: Options): Plugin {
         },
 
         load(id) {
+            log("load", id);
             if (id === hmrListenerFilepath) {
                 return `import "./fetch-invalidate.js";`;
             }
