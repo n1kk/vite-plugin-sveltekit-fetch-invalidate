@@ -1,0 +1,81 @@
+{
+  "name": "vite-plugin-sveltekit-fetch-invalidate",
+  "version": "0.1.0",
+  "description": "Sveltekit plugin to help with HMR in data endpoints.",
+  "author": "n1kk",
+  "license": "MIT",
+  "repository": "github:n1kk/vite-plugin-sveltekit-fetch-invalidate",
+  "homepage": "https://github.com/n1kk/vite-plugin-sveltekit-fetch-invalidate",
+  "keywords": [
+    "sveltekit",
+    "vite",
+    "plugin",
+    "hrm",
+    "invalidate"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./hmr-listener": {
+      "types": "./dist/hmr-listener.d.ts",
+      "default": "./dist/hmr-listener.js"
+    }
+  },
+  "sideEffects": true,
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc -b ./tsconfig.json",
+    "lint": "eslint --fix",
+    "format": "prettier --write --ignore-unknown ."
+  },
+  "devDependencies": {
+    "@sveltejs/kit": "^1.0.0-next.231",
+    "@types/eslint": "^8.2.2",
+    "@types/jest": "^27.4.0",
+    "@types/picomatch": "^2.3.0",
+    "@types/prettier": "^2.4.3",
+    "@typescript-eslint/eslint-plugin": "^5.10.0",
+    "@typescript-eslint/parser": "^5.10.0",
+    "eslint": "^8.7.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "husky": "^7.0.4",
+    "jest": "^27.4.7",
+    "lint-staged": "^12.3.1",
+    "node-fetch": "^3.2.0",
+    "prettier": "^2.5.1",
+    "rimraf": "^3.0.2",
+    "svelte": "^3.44.0",
+    "ts-jest": "^27.1.2",
+    "typescript": "^4.5.4",
+    "vite": "^2.7.13"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*": [
+      "prettier --write --ignore-unknown"
+    ],
+    "*.{js,vue,ts}": [
+      "eslint --fix --ignore-pattern '!.eslintrc.cjs'"
+    ]
+  },
+  "peerDependencies": {
+    "@sveltejs/kit": "^1.0.0-next.231",
+    "svelte": "^3.44.0"
+  },
+  "dependencies": {
+    "picomatch": "^2.3.1"
+  }
+}

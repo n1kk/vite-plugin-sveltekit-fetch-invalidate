@@ -1,0 +1,16 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "eslint.format.enable": true,
+  "workbench.tree.indent": 14,
+  "editor.wordWrap": "on",
+  "explorer.compactFolders": false,
+  "search.exclude": {
+    "static/game-source/**/*": true
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.fixAll.prettier": true
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
+}
