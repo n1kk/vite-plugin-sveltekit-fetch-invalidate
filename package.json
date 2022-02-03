@@ -22,6 +22,10 @@
     "./hmr-listener": {
       "types": "./dist/hmr-listener.d.ts",
       "default": "./dist/hmr-listener.js"
+    },
+    "./fetch-invalidate": {
+      "types": "./dist/fetch-invalidate.d.ts",
+      "default": "./dist/fetch-invalidate.js"
     }
   },
   "sideEffects": true,

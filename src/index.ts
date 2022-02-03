@@ -1,8 +1,6 @@
 import path from "path";
 import picomatch from "picomatch";
 import type { Plugin } from "vite";
-import { EventData, eventName, log, pluginName } from "./const.js";
-import { fileURLToPath } from "url";
 
 type InvalidateConfig = {
     watch: string | string[];
@@ -20,14 +18,31 @@ type Options = Config & {
 
 type Config = {
     patterns: InvalidateConfig[];
-    verbose?: boolean | number;
+    verbose?: boolean;
     routesRoot?: string;
     importersTransform?: (importers: string[]) => string[];
 };
 
+export type EventData = string[];
+
 const asArray = <T>(value?: T | T[]): T[] => (Array.isArray(value) ? value : value ? [value] : []);
 const isStrArray = (value: any): value is string[] => Array.isArray(value) && typeof value[0] === "string";
-const dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export const pluginName = "sveltekit-fetch-invalidate";
+export const eventName = "sveltekit-invalidate-resources";
+export const pluginTag = `[${pluginName}]`;
+
+export const fetchInvalidateCode = `
+import { invalidate } from "$app/navigation";
+
+if (import.meta.hot) {
+    console.log("${pluginTag} registering hmr listener");
+    import.meta.hot.on("${eventName}", (data) => {
+        console.log("${pluginTag} invalidate-resources", data);
+        data.forEach(element => invalidate(element));
+    });
+}
+`;
 
 function normalizeConfig(options: Options) {
     const patterns = isStrArray(options.patterns) ? { watch: options.patterns } : options.patterns;
@@ -48,12 +63,13 @@ export function fetchInvalidate(options: Options): Plugin {
         };
     });
 
-    const verbose = Number(config.verbose);
-    const trace = verbose ? (level: number, ...args: any[]) => level <= verbose && log(...args) : () => {};
+    const log = (...args: any[]) => console.log(pluginTag, ...args);
+    const verbose = config.verbose ? log : () => {};
 
-    trace(1, `initialized`);
+    verbose(`initialized`);
 
-    const hmrListenerFilepath = path.resolve(dirname, "hmr-listener.js");
+    const hmrListenerModuleId = "vite-plugin-sveltekit-fetch-invalidate/hmr-listener";
+    const virtualModuleId = "\0" + hmrListenerModuleId;
 
     return {
         name: pluginName,
@@ -62,29 +78,29 @@ export function fetchInvalidate(options: Options): Plugin {
 
         configureServer(server) {
             list.forEach(data => {
-                trace(1, "Adding watchers for:", data.watch);
+                log("Adding watchers for:", data.watch);
                 server.watcher.add(data.watch);
             });
         },
 
         resolveId(id) {
-            trace(2, "resolveId", id);
-            if (id === "vite-plugin-sveltekit-fetch-invalidate/hmr-listener") {
-                trace(1, "substituting:", id);
-                return hmrListenerFilepath;
+            verbose("resolveId", id);
+            if (id === hmrListenerModuleId) {
+                verbose("substituting:", virtualModuleId);
+                return virtualModuleId;
             }
         },
 
         load(id) {
-            trace(2, "load", id);
-            if (id === hmrListenerFilepath) {
-                trace(1, "redirecting to fetch-invalidate.js");
-                return `import "./fetch-invalidate.js";`;
+            verbose("load", id);
+            if (id === virtualModuleId) {
+                verbose("returning content for fetch-invalidate");
+                return fetchInvalidateCode;
             }
         },
 
         handleHotUpdate(ctx) {
-            trace(2, "handleHotUpdate", ctx.file);
+            verbose("handleHotUpdate", ctx.file);
 
             const root = ctx.server.config.root;
             const importerRoot = path.resolve(root, config.routesRoot);
@@ -95,7 +111,7 @@ export function fetchInvalidate(options: Options): Plugin {
                     const matcher = picomatch(glob);
                     const isMatch = matcher(relative);
                     if (isMatch) {
-                        trace(1, `watcher '${glob}' triggered: ${relative}`);
+                        log(`watcher '${glob}' triggered: ${relative}`);
                     }
                     return isMatch;
                 });
@@ -121,7 +137,7 @@ export function fetchInvalidate(options: Options): Plugin {
 
                 targetsToInvalidate.push(...importerFiles);
 
-                trace(1, "invalidating targets:", targetsToInvalidate);
+                log("invalidating targets:", targetsToInvalidate);
 
                 ctx.server.ws.send({
                     type: "custom",

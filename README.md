@@ -38,7 +38,6 @@ import "vite-plugin-sveltekit-fetch-invalidate/hmr-listener";
 ```ts
 type Config = {
   patterns: string[] | InvalidateConfig | InvalidateConfig[];
-  verbose?: boolean;
   routesRoot?: string;
   importersTransform?: (importers: string[]) => string[];
 };
