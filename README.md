@@ -2,26 +2,25 @@
 
 Vite plugin to help automating SvelteKit json endpoints invalidation and hot reload.
 
-If your endpoints have no parameters in them (like `[slug]`) it will automatically importers of modified file and resolve them to the relative path of the routes root.
+It can automatically infer urls to invalidate, to a certain extent. If your endpoints have no parameters in them (like `[slug]`) it will iterate over modules that were importing modified file and resolve them to the relative path of the routes root. By default, it will remove `.js|.ts` extension and filter by `.json`, but this behavior can be modified. If you do have parameters in your URLs you will have to specify the invalidation list manually.
 
-The sum import `/hmr-listener` is pointing to an empty file and is redirected by the plugin to the actual listener only in development. This way no extra code is included in your production bundle.
+The sub import `/hmr-listener` is pointing to an empty file, the plugin runs only in serve mode and substitutes that import with hrm listener code. This way no extra code is included in your production bundle.
 
 ### Usage
 
-Import it and add to vite plugins array:
-
 ```js
+// svelte.config.js
 import { fetchInvalidate } from "vite-plugin-sveltekit-fetch-invalidate";
 
-const plugin = fetchInvalidate({
-  patterns: ["src/blog/**/*.mdx"],
-  routesRoot: "src/routes",
-});
-
-const svelteKitConfig = {
+export default {
   kit: {
     vite: {
-      plugins: [plugin],
+      plugins: [
+        fetchInvalidate({
+          patterns: ["src/blog/**/*.mdx"],
+          routesRoot: "src/routes",
+        }),
+      ],
     },
   },
 };
@@ -38,8 +37,9 @@ import "vite-plugin-sveltekit-fetch-invalidate/hmr-listener";
 ```ts
 type Config = {
   patterns: string[] | InvalidateConfig | InvalidateConfig[];
-  routesRoot?: string;
+  routesRoot?: string; // defaults to "src/routes"
   importersTransform?: (importers: string[]) => string[];
+  verbose?: boolean;
 };
 type InvalidateConfig = {
   watch: string | string[];
@@ -64,8 +64,8 @@ fetchInvalidate({
 fetchInvalidate({
   patterns: {
     watch: ["src/blog/**/*.svelte", "src/blog/**/*.mdx"],
-    // if your endpoint has a param in it invalidating it won't work, you have to specify manual list
-    invalidate: ["/api/get-posts.json"],
+    // if your endpoint has a param in it then invalidating `/api/[type].json` won't work, you have to specify manual list
+    invalidate: ["/api/posts.json"],
   },
 });
 
@@ -77,8 +77,11 @@ fetchInvalidate({
       invalidate: ["/api/timestamps.json"],
     },
     {
-      watch: ["src/items/**/*.mdx"],
+      watch: ["src/items/**/*.json", "src/model/**/*.ts"],
       invalidate: ["/api/prices.json"],
+    },
+    {
+      watch: ["src/**/*.ts"],
     },
   ],
   routesRoot: "src/website",
