@@ -60,7 +60,7 @@ fetchInvalidate({
   },
 });
 
-// same as above with custom ivalidation list
+// custom ivalidation list
 fetchInvalidate({
   patterns: {
     watch: ["src/blog/**/*.svelte", "src/blog/**/*.mdx"],
