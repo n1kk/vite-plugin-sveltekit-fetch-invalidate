@@ -2,11 +2,21 @@
 
 Vite plugin to help automating SvelteKit json endpoints invalidation and hot reload.
 
+#### Automatic URL inference\*
+
 It can automatically infer URLs to invalidate, to a certain extent. If your endpoints have no parameters in them (like `[slug]`) it will iterate over modules that were importing modified file and resolve them to the relative path of the routes root. By default, it will remove `.js|.ts` extension and filter by `.json`, but this behavior can be modified. If you do have parameters in your URLs you will have to specify the invalidation list manually.
+
+#### No production build impact
 
 The sub import `/hmr-listener` is pointing to an empty file, the plugin runs only in serve mode and substitutes that import with hrm listener code. This way no extra code is included in your production bundle.
 
 ### Usage
+
+```bash
+npm install -D vite-plugin-sveltekit-fetch-invalidate
+yarn add -D vite-plugin-sveltekit-fetch-invalidate
+pnpm add -D vite-plugin-sveltekit-fetch-invalidate
+```
 
 ```js
 // svelte.config.js
